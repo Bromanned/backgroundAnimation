@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Cool Animation</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <style>
+        html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            margin: 0;
+            border: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="canvas" width=500 height=500></canvas>
+
+    <script>
+
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth + 200;
+        canvas.height = window.innerHeight + 200;
+
+        const dotCount = 200;
+        const dotSize = 0;
+        const lineThres = 200;
+        const speedModif = 0.8;
+
+        var dots = [];
+        var velocities = [];
+
+        pregenCanvas();
+
+        function pregenCanvas() {
+
+            for (i = 0; i < dotCount; i++) {
+                x = Math.floor(Math.random() * canvas.width);
+                y = Math.floor(Math.random() * canvas.height);
+
+                dots.push([x, y]);
+
+                speedX = (Math.random() - 0.5) * 2 * speedModif;
+                speedY = (Math.random() - 0.5) * 2 * speedModif;
+
+                velocities.push([speedX, speedY]);
+
+            }
+            update();
+        }
+
+        function update() {
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            updatePositions();
+            addLines();
+        }
+
+        function updatePositions() {
+            for (let i = 0; i < dots.length; i++) {
+                dots[i][0] += velocities[i][0];
+                dots[i][1] += velocities[i][1];
+
+                if (dots[i][0] + dotSize < 0) {
+                    dots[i][0] = canvas.width + dotSize;
+                }
+                if (dots[i][0] - dotSize > canvas.width) {
+                    dots[i][0] = -dotSize;
+                }
+                if (dots[i][1] + dotSize < 0) {
+                    dots[i][1] = canvas.width + dotSize;
+                }
+                if (dots[i][1] - dotSize > canvas.width) {
+                    dots[i][1] = -dotSize;
+                }
+            }
+        }
+
+        function addLines() {
+            for (let i = 0; i < dots.length; i++) {
+                for (let j = 0; j < dots.length; j++) {
+                    var dist = distance(dots[i], dots[j]);
+                    if (dist < lineThres * 0.9) {
+                        //generate color for line
+                        let normBrightness = 1 - dist / lineThres;
+                        let brightness = (Math.floor(normBrightness * 256)).toString(16);
+                        let color = "#" + brightness + brightness + brightness;
+
+                        ctx.fillStyle = color;
+                        ctx.beginPath();
+                        ctx.moveTo(dots[i][0], dots[i][1]);
+                        ctx.lineTo(dots[j][0], dots[j][1]);
+
+                        ctx.fill();
+                        ctx.closePath();
+                    }
+                }
+            }
+        }
+
+        function distance(point1, point2) {
+            x = Math.abs(point1[0] - point2[0]);
+            y = Math.abs(point1[1] - point2[1]);
+            return Math.sqrt(x * x + y * y);
+        }
+
+        window.scrollTo(100, 100);
+
+        setInterval(function () {
+            update();
+        }, 40);
+
+
+    </script> 
+
+</body>
+</html>
